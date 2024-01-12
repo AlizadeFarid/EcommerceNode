@@ -12,7 +12,7 @@ const { authMiddleware, isAdmin } = require("../middlewares/authMiddleware");
 const router = express.Router();
 
 router.get("/", getAllUsers);
-router.put("/refresh", handleRefreshToken);
+router.get("/refresh", handleRefreshToken);
 router.get("/:id", authMiddleware, isAdmin, getUser);
 router.put("/edit-user/:id", authMiddleware, updateUser);
 router.put("/block-user/:id", authMiddleware, isAdmin, blockUser);

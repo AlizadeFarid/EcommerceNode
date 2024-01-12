@@ -49,6 +49,34 @@ const loginUser = asyncHandler(async (req, res) => {
   }
 });
 
+//Logout
+const logoutUser = asyncHandler(async (req, res) => {
+  const cookie = req.cookies;
+  if (!cookie?.refreshToken) {
+    throw Error("No Refresh Token in Cookies");
+  }
+  const refreshToken = cookie.refreshToken;
+  const user = await User.findOne({ refreshToken });
+  if (!user) {
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: true,
+    });
+    return res.status(204); //Forbidden
+  }
+  await User.findOneAndUpdate(
+    { refreshToken },
+    {
+      refreshToken: "",
+    }
+  );
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    secure: true,
+  });
+  res.sendStatus(204); //Forbidden
+});
+
 //Get All Users
 const getAllUsers = asyncHandler(async (req, res) => {
   try {
@@ -82,19 +110,13 @@ const handleRefreshToken = asyncHandler(async (req, res) => {
   const refreshToken = cookie.refreshToken;
   const user = await User.findOne({ refreshToken });
   if (!user) throw Error("No Refresh token present in DB or not matched");
-  jwt.verify(
-    refreshToken,
-    process.env.JWT_SECRET,
-    (err,
-    (decoded) => {
-      if (err || user.id !== decoded.id) {
-        throw Error("There is something wrong with refresh token");
-      }
-      const accessToken = generateToken(user?.id);
-      res.json(accessToken);
-    })
-  );
-  res.json(user);
+  jwt.verify(refreshToken, process.env.JWT_SECRET, (err, decoded) => {
+    if (err || user.id !== decoded.id) {
+      throw Error("There is something wrong with refresh token");
+    }
+    const accessToken = generateToken(user?.id);
+    res.json({ accessToken });
+  });
 });
 
 //Update User
@@ -183,4 +205,5 @@ module.exports = {
   blockUser,
   unBlockUser,
   handleRefreshToken,
+  logoutUser,
 };
