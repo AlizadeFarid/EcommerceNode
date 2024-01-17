@@ -7,11 +7,13 @@ const {
   getAllBlogs,
   deleteBlog,
   likeBlog,
+  dislikeBlog,
 } = require("../controllers/blogController");
 const router = express.Router();
 
 router.get("/", getAllBlogs);
 router.put("/likes", authMiddleware, likeBlog);
+router.put("/dislikes", authMiddleware, dislikeBlog);
 router.get("/:id", getBlog);
 router.delete("/:id", authMiddleware, isAdmin, deleteBlog);
 router.post("/create-blog", authMiddleware, isAdmin, createBlog);
