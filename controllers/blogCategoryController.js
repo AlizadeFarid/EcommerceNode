@@ -8,7 +8,7 @@ const createCategory = asyncHandler(async (req, res) => {
     const newCategory = await Category.create(req.body);
     res.json(newCategory);
   } catch (error) {
-    throw new Error(error);
+    throw new Error(error); 
   }
 });
 
